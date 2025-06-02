@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.load.engine.Resource
 import dagger.hilt.android.AndroidEntryPoint
@@ -32,13 +33,12 @@ class DrawingActivity : AppCompatActivity() {
     }
 
     private fun setupButtons() {
-        binding.btnGenerate.setOnClickListener {
-            val bitmap = binding.drawingView.getBitmap()
-            viewModel.generateAIArt(bitmap)
-        }
-
         binding.btnClear.setOnClickListener {
             binding.drawingView.clearCanvas()
+        }
+
+        binding.btnGenerate.setOnClickListener {
+            viewModel.generateAIArt(binding.drawingView.getBitmap())
         }
     }
 
@@ -46,29 +46,16 @@ class DrawingActivity : AppCompatActivity() {
         viewModel.artGenerationState.observe(this) { state ->
             when (state) {
                 is Resource.Loading -> showLoading()
-                is Resource.Success -> {
-                    hideLoading()
-                    state.data?.let { showGeneratedArt(it) }
-                }
-                is Resource.Error -> {
-                    hideLoading()
-                    Toast.makeText(this, state.message, Toast.LENGTH_SHORT).show()
-                }
+                is Resource.Success -> showResult(state.data)
+                is Resource.Error -> showError(state.message)
             }
         }
     }
 
-    private fun showGeneratedArt(bitmap: Bitmap) {
-        binding.generatedImageView.visibility = View.VISIBLE
-        binding.generatedImageView.setImageBitmap(bitmap)
-        binding.btnSave.visibility = View.VISIBLE
-
-        binding.btnSave.setOnClickListener {
-            viewModel.saveArt(
-                original = binding.drawingView.getBitmap(),
-                generated = bitmap
-            )
-            finish()
+    private fun showResult(bitmap: Bitmap?) {
+        bitmap?.let {
+            binding.generatedImageView.visibility = View.VISIBLE
+            binding.generatedImageView.setImageBitmap(it)
         }
     }
 }

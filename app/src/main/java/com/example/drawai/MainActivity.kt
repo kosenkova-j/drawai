@@ -10,34 +10,24 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityGalleryBinding
+    private lateinit var binding: ActivityMainBinding
     private val viewModel: DrawingViewModel by viewModels()
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityGalleryBinding.inflate(layoutInflater)
+        binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         setupRecyclerView()
         setupFab()
-    }
-
-    private fun observeViewModel() {
-        viewModel.savedArts.observe(this) { arts ->
-            (binding.recyclerView.adapter as ArtAdapter).submitList(arts)
-            binding.emptyView.visibility = if (arts.isEmpty()) View.VISIBLE else View.GONE
-        }
+        observeViewModel()
     }
 
     private fun setupRecyclerView() {
-        binding.recyclerView.apply {
-            layoutManager = GridLayoutManager(this@DrawingActivity, 2)
-            adapter = ArtAdapter { art ->
-                // Показываем детали арта
-                startActivity(Intent(this@DrawingActivity, ArtDetailActivity::class.java).apply {
-                    putExtra("art_id", art.id)
-                })
+        binding.recyclerView.adapter = ArtAdapter { art ->
+            // Открываем детали при клике
+            startActivity(Intent(this, ArtDetailActivity::class.java).apply {
+                putExtra("art_id", art.id)
             }
         }
     }
@@ -47,4 +37,16 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, DrawingActivity::class.java))
         }
     }
-}
+
+    private fun observeViewModel() {
+        viewModel.savedArts.observe(this) { arts ->
+            (binding.recyclerView.adapter as ArtAdapter).submitList(arts)
+            binding.emptyView.visibility = if (arts.isEmpty()) View.VISIBLE else View.GONE
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.loadSavedArts()
+    }
+}}
