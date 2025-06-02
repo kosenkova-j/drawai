@@ -4,6 +4,8 @@ import android.graphics.BitmapFactory
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.drawai.database.ArtEntity
+import com.example.drawai.databinding.ItemArtBinding  // Убедитесь, что путь совпадает с вашим package!
 
 class ArtAdapter(
     private val onItemClick: (ArtEntity) -> Unit

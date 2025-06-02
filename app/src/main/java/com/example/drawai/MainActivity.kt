@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupRecyclerView() {
         binding.recyclerView.adapter = ArtAdapter { art ->
             // Открываем детали при клике
-            startActivity(Intent(this, ArtDetailActivity::class.java).apply {
+            startActivity(Intent(this, DrawingActivity::class.java).apply {
                 putExtra("art_id", art.id)
             }
         }
@@ -49,4 +49,4 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         viewModel.loadSavedArts()
     }
-}}
+}
