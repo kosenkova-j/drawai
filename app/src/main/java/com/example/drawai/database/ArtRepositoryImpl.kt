@@ -26,10 +26,10 @@ class ArtRepositoryImpl @Inject constructor(
             steps = 30
         )
 
-        val auth = API_KEY;
-
-        // Правильный вызов метода API
-        val response = artApi.generateImage(auth, request)
+        val response = artApi.generateImage(
+            auth = API_KEY,
+            request = request
+        )
 
         if (response.isSuccessful) {
             response.body()?.artifacts?.firstOrNull()?.base64Image?.let {

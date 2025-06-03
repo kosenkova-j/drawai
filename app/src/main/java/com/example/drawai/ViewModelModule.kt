@@ -13,12 +13,12 @@ import dagger.hilt.android.components.ViewModelComponent
 @InstallIn(ViewModelComponent::class) // Ограничиваем время жизни зависимостей ViewModel
 object ViewModelModule {
 
-    @Provides
-    fun provideArtRepository(
-        artApi: ArtApi,
-        artDao: ArtDao,
-        bitmapConverter: BitmapConverter
-    ): ArtRepository = ArtRepositoryImpl(artApi, artDao, bitmapConverter)
+//    @Provides
+//    fun provideArtRepository(
+//        artApi: ArtApi,
+//        artDao: ArtDao,
+//        bitmapConverter: BitmapConverter
+//    ): ArtRepository = ArtRepositoryImpl(artApi, artDao, bitmapConverter)
 
     @Provides
     fun provideGenerateAIArtUseCase(repository: ArtRepository): GenerateAIArtUseCase {
