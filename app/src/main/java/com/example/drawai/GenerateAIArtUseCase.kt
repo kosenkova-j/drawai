@@ -1,6 +1,8 @@
 package com.example.drawai
 
 import android.graphics.Bitmap
+import com.example.drawai.database.ArtEntity
+import com.example.drawai.database.ArtRepository
 import javax.inject.Inject
 
 class GenerateAIArtUseCase @Inject constructor(

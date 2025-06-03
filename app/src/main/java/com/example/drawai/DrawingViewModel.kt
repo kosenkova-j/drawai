@@ -5,7 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bumptech.glide.load.engine.Resource
+import com.example.drawai.api.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,7 +23,7 @@ class DrawingViewModel @Inject constructor(
         _artGenerationState.postValue(Resource.Loading())
         viewModelScope.launch {
             try {
-                val result = generateAIArtUseCase.execute(drawingBitmap)
+                val result = generateAIArtUseCase(drawingBitmap)
                 _artGenerationState.postValue(Resource.Success(result))
             } catch (e: Exception) {
                 _artGenerationState.postValue(Resource.Error(e.message ?: "Error generating art"))
@@ -33,7 +33,7 @@ class DrawingViewModel @Inject constructor(
 
     fun saveArt(original: Bitmap, generated: Bitmap) {
         viewModelScope.launch {
-            saveArtUseCase.execute(original, generated)
+            saveArtUseCase(original, generated)
         }
     }
 }

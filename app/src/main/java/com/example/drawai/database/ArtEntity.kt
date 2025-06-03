@@ -1,32 +1,34 @@
 package com.example.drawai.database
 
-import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Entity
 import androidx.room.Insert
 import androidx.room.PrimaryKey
-import androidx.room.Query
 import androidx.room.RoomDatabase
 
 @Entity(tableName = "artworks")
 data class ArtEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    @ColumnInfo(name = "original_image") val originalImage: ByteArray,
-    @ColumnInfo(name = "generated_image") val generatedImage: ByteArray,
-    @ColumnInfo(name = "created_at") val createdAt: Long
-)
+    val originalImage: ByteArray,  // Байтовый массив оригинального рисунка
+    val generatedImage: ByteArray, // Байтовый массив сгенерированного изображения
+    val createdAt: Long = System.currentTimeMillis()
+) {
+    // Для правильного сравнения объектов
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        other as ArtEntity
+        if (id != other.id) return false
+        if (!originalImage.contentEquals(other.originalImage)) return false
+        if (!generatedImage.contentEquals(other.generatedImage)) return false
+        return true
+    }
 
-@Dao
-interface ArtDao {
-    @Insert
-    suspend fun insertArt(art: ArtEntity)
-
-    @Query("SELECT * FROM artworks ORDER BY created_at DESC")
-    suspend fun getAllArts(): List<ArtEntity>
-}
-
-@Database(entities = [ArtEntity::class], version = 1)
-abstract class ArtDatabase : RoomDatabase() {
-    abstract fun artDao(): ArtDao
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + originalImage.contentHashCode()
+        result = 31 * result + generatedImage.contentHashCode()
+        return result
+    }
 }

@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity() {
             // Открываем детали при клике
             startActivity(Intent(this, DrawingActivity::class.java).apply {
                 putExtra("art_id", art.id)
-            }
+            })
         }
     }
 
