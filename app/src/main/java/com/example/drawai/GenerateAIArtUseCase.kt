@@ -2,7 +2,7 @@ package com.example.drawai
 
 import android.graphics.Bitmap
 import com.example.drawai.database.ArtEntity
-import com.example.drawai.database.ArtRepository
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class GenerateAIArtUseCase @Inject constructor(
@@ -24,7 +24,7 @@ class SaveArtUseCase @Inject constructor(
 class GetSavedArtsUseCase @Inject constructor(
     private val artRepository: ArtRepository
 ) {
-    suspend operator fun invoke(): List<ArtEntity> {
+    operator fun invoke(): Flow<List<ArtEntity>> {
         return artRepository.getSavedArts()
     }
 }

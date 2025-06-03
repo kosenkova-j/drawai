@@ -4,20 +4,31 @@ import android.graphics.Bitmap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.drawai.api.Resource
+import com.example.drawai.database.ArtEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class DrawingViewModel @Inject constructor(
     private val generateAIArtUseCase: GenerateAIArtUseCase,
-    private val saveArtUseCase: SaveArtUseCase
+    private val saveArtUseCase: SaveArtUseCase,
+    private val getSavedArtsUseCase: GetSavedArtsUseCase
 ) : ViewModel() {
 
+    // Для генерации изображений
     private val _artGenerationState = MutableLiveData<Resource<Bitmap>>()
     val artGenerationState: LiveData<Resource<Bitmap>> = _artGenerationState
+
+    // Для списка сохраненных артов (используем Flow напрямую)
+    val savedArts: Flow<List<ArtEntity>> = getSavedArtsUseCase()
+
+    // Если нужен LiveData для наблюдения во View
+    val savedArtsLiveData: LiveData<List<ArtEntity>> = savedArts.asLiveData()
 
     fun generateAIArt(drawingBitmap: Bitmap) {
         _artGenerationState.postValue(Resource.Loading())
@@ -34,6 +45,7 @@ class DrawingViewModel @Inject constructor(
     fun saveArt(original: Bitmap, generated: Bitmap) {
         viewModelScope.launch {
             saveArtUseCase(original, generated)
+            // Flow автоматически обновится при изменении в БД
         }
     }
 }

@@ -5,8 +5,11 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.drawai.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -25,7 +28,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupRecyclerView() {
         binding.recyclerView.adapter = ArtAdapter { art ->
-            // Открываем детали при клике
             startActivity(Intent(this, DrawingActivity::class.java).apply {
                 putExtra("art_id", art.id)
             })
@@ -39,14 +41,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun observeViewModel() {
-        viewModel.savedArts.observe(this) { arts ->
-            (binding.recyclerView.adapter as ArtAdapter).submitList(arts)
-            binding.emptyView.visibility = if (arts.isEmpty()) View.VISIBLE else View.GONE
+        lifecycleScope.launch {
+            viewModel.savedArts.collect { arts ->
+                (binding.recyclerView.adapter as? ArtAdapter)?.submitList(arts)
+                binding.emptyView.visibility = if (arts.isEmpty()) View.VISIBLE else View.GONE
+            }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.loadSavedArts()
     }
 }

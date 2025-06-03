@@ -1,10 +1,9 @@
 package com.example.drawai
 
 import com.example.drawai.api.ArtApi
-import com.example.drawai.database.ArtRepositoryImpl
-import com.example.drawai.database.ArtRepository
 import com.example.drawai.api.BitmapConverter
 import com.example.drawai.database.ArtDao
+import com.example.drawai.database.ArtRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

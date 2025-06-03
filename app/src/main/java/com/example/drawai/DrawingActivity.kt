@@ -46,9 +46,24 @@ class DrawingActivity : AppCompatActivity() {
     private fun observeViewModel() {
         viewModel.artGenerationState.observe(this) { state ->
             when (state) {
-                is Resource.Loading -> showLoading()
-                is Resource.Success -> showResult(state.data)
-                is Resource.Error -> showError(state.message)
+                is Resource.Loading -> {
+                    binding.progressBar.visibility = View.VISIBLE
+                    binding.btnGenerate.isEnabled = false
+                }
+                is Resource.Success -> {
+                    binding.progressBar.visibility = View.GONE
+                    binding.btnGenerate.isEnabled = true
+                    showResult(state.data)
+                }
+                is Resource.Error -> {
+                    binding.progressBar.visibility = View.GONE
+                    binding.btnGenerate.isEnabled = true
+                    Toast.makeText(
+                        this,
+                        state.message ?: "Error generating art",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
     }
@@ -57,6 +72,15 @@ class DrawingActivity : AppCompatActivity() {
         bitmap?.let {
             binding.generatedImageView.visibility = View.VISIBLE
             binding.generatedImageView.setImageBitmap(it)
+            binding.btnSave.visibility = View.VISIBLE
+
+            binding.btnSave.setOnClickListener {
+                viewModel.saveArt(
+                    original = binding.DrawingView.getBitmap(),
+                    generated = bitmap
+                )
+                finish()
+            }
         }
     }
 }

@@ -16,20 +16,34 @@ class DrawingView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-    private var path = Path()
-    private val paint = Paint().apply {
-        color = Color.BLACK
+    private var drawPath = Path()
+    private var drawPaint: Paint = Paint().apply {
+        color = Color.BLACK  // Цвет по умолчанию
         style = Paint.Style.STROKE
-        strokeWidth = 8f
+        strokeWidth = 8f     // Толщина по умолчанию
         isAntiAlias = true
     }
-    private val paths = mutableListOf<Path>()
+    private val drawPaths = mutableListOf<Path>()
     private val undoPaths = mutableListOf<Path>()
+
+    // Установка цвета рисования
+    fun setColor(color: Int) {
+        drawPaint.color = color
+        invalidate()
+    }
+
+    // Установка толщины кисти
+    fun setBrushSize(size: Float) {
+        drawPaint.strokeWidth = size
+        invalidate()
+    }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        paths.forEach { canvas.drawPath(it, paint) }
-        canvas.drawPath(path, paint)
+        // Рисуем все сохраненные пути
+        drawPaths.forEach { canvas.drawPath(it, drawPaint) }
+        // Рисуем текущий путь
+        canvas.drawPath(drawPath, drawPaint)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -38,16 +52,16 @@ class DrawingView @JvmOverloads constructor(
 
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
-                path.moveTo(x, y)
+                drawPath.moveTo(x, y)
                 invalidate()
             }
             MotionEvent.ACTION_MOVE -> {
-                path.lineTo(x, y)
+                drawPath.lineTo(x, y)
                 invalidate()
             }
             MotionEvent.ACTION_UP -> {
-                paths.add(path)
-                path = Path()
+                drawPaths.add(drawPath)
+                drawPath = Path()
                 invalidate()
             }
         }
@@ -55,30 +69,17 @@ class DrawingView @JvmOverloads constructor(
     }
 
     fun clearCanvas() {
-        paths.clear()
+        drawPaths.clear()
         undoPaths.clear()
+        drawPath = Path()
         invalidate()
-    }
-
-    fun undo() {
-        if (paths.isNotEmpty()) {
-            undoPaths.add(paths.removeAt(paths.size - 1))
-            invalidate()
-        }
-    }
-
-    fun redo() {
-        if (undoPaths.isNotEmpty()) {
-            paths.add(undoPaths.removeAt(undoPaths.size - 1))
-            invalidate()
-        }
     }
 
     fun getBitmap(): Bitmap {
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
-        canvas.drawColor(Color.WHITE)
-        paths.forEach { canvas.drawPath(it, paint) }
+        canvas.drawColor(Color.WHITE)  // Белый фон
+        drawPaths.forEach { canvas.drawPath(it, drawPaint) }
         return bitmap
     }
 }

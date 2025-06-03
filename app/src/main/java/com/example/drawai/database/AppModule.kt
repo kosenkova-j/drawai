@@ -2,6 +2,7 @@ package com.example.drawai.database
 
 import android.content.Context
 import androidx.room.Room
+import com.example.drawai.ArtRepository
 import com.example.drawai.api.BitmapConverter
 import com.example.drawai.api.ArtApi
 import dagger.Module
