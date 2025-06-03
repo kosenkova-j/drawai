@@ -1,5 +1,6 @@
 package com.example.drawai.api
 
+import com.google.gson.annotations.SerializedName
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.Header
@@ -13,9 +14,27 @@ interface ArtApi {
 
     @POST("v1/generation/stable-diffusion-v1-6/image-to-image")
     suspend fun generateImage(
-        @Header("Authorization") auth: String = API_KEY,
-        @Header("Content-Type") contentType: String = "application/json",
-        @Header("Accept") accept: String = "application/json",
+        @Header("Authorization") auth: String,
         @Body request: StableDiffusionRequest
     ): Response<StableDiffusionResponse>
+
+    data class StableDiffusionRequest(
+        @SerializedName("init_image") val initImage: String,
+        @SerializedName("text_prompts") val prompts: List<TextPrompt>,
+        @SerializedName("image_strength") val imageStrength: Float = 0.35f,
+        @SerializedName("steps") val steps: Int = 30
+    )
+
+    data class TextPrompt(
+        @SerializedName("text") val text: String,
+        @SerializedName("weight") val weight: Float = 1f
+    )
+
+    data class StableDiffusionResponse(
+        @SerializedName("artifacts") val artifacts: List<Artifact>
+    )
+
+    data class Artifact(
+        @SerializedName("base64") val base64Image: String
+    )
 }

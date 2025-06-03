@@ -14,9 +14,32 @@ class ArtRepositoryImpl @Inject constructor(
 ) : ArtRepository {
 
     override suspend fun generateAIArt(drawing: Bitmap): Bitmap {
+        // Конвертируем Bitmap в Base64
         val imageBase64 = bitmapConverter.bitmapToBase64(drawing)
-        val response = artApi.generateImage(imageBase64)
-        return bitmapConverter.base64ToBitmap(response.generatedImage)
+
+        // Создаем запрос для Stability AI API
+        val request = ArtApi.StableDiffusionRequest(
+            initImage = imageBase64,
+            prompts = listOf(
+                ArtApi.TextPrompt("high-quality digital art, vibrant colors, detailed", 1f),
+                )
+            )
+
+        // Отправляем запрос к API
+        val response = artApi.generateImage(request = request)
+
+        if (response.isSuccessful) {
+            val artifacts = response.body()?.artifacts
+            if (!artifacts.isNullOrEmpty()) {
+                // Берем первый результат (может быть несколько вариантов)
+                val base64Result = artifacts[0].base64Image
+                return bitmapConverter.base64ToBitmap(base64Result)
+            } else {
+                throw Exception("API returned empty response")
+            }
+        } else {
+            throw Exception("API request failed: ${response.errorBody()?.string()}")
+        }
     }
 
     override fun getSavedArts(): Flow<List<ArtEntity>> {
