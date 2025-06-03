@@ -47,7 +47,20 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideArtApi(retrofit: Retrofit): ArtApi = retrofit.create(ArtApi::class.java)
+    fun provideArtApi(): ArtApi {
+        val client = OkHttpClient.Builder()
+            .addInterceptor(HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BODY
+            })
+            .build()
+
+        return Retrofit.Builder()
+            .baseUrl(ArtApi.BASE_URL)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ArtApi::class.java)
+    }
 
     @Provides
     @Singleton

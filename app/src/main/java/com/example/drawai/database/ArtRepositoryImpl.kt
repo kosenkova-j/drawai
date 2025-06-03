@@ -15,7 +15,7 @@ class ArtRepositoryImpl @Inject constructor(
 
     override suspend fun generateAIArt(drawing: Bitmap): Bitmap {
         val imageBase64 = bitmapConverter.bitmapToBase64(drawing)
-        val response = artApi.generateArt(imageBase64)
+        val response = artApi.generateImage(imageBase64)
         return bitmapConverter.base64ToBitmap(response.generatedImage)
     }
 

@@ -28,7 +28,6 @@ junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidx-junit" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidx-espresso" }
 
-# Новые зависимости
 # ViewBinding
 androidx-databinding = { group = "androidx.databinding", name = "viewbinding", version = "8.1.2" }
 
