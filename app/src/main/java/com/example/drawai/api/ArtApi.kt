@@ -7,7 +7,7 @@ import retrofit2.http.POST
 interface ArtApi {
     @POST("api/v1/art-generator")
     suspend fun generateArt(
-        @Body request: ArtGenerationRequest
+        @Body request: String
     ): ArtGenerationResponse
 
     // Add other API endpoints as needed

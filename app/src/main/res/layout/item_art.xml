@@ -1,22 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="180dp"
-    android:layout_margin="4dp">
+    android:layout_margin="4dp"
+    android:orientation="horizontal"
+    android:background="#F5F5F5"
+    android:padding="4dp">
 
+    <!-- Левая часть - оригинальный рисунок -->
     <ImageView
         android:id="@+id/originalImage"
-        android:layout_width="198dp"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:background="#F5F5F5"
-        android:scaleType="centerCrop" />
+        android:layout_weight="1"
+        android:scaleType="centerCrop"
+        android:background="@android:color/white"
+        android:contentDescription="Original user drawing" />
 
+    <!-- Разделительная линия -->
+    <View
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:background="#E0E0E0" />
+
+    <!-- Правая часть - сгенерированное изображение -->
     <ImageView
         android:id="@+id/generatedImage"
-        android:layout_width="199dp"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:background="#F5F5F5"
-        android:scaleType="centerCrop" />
+        android:layout_weight="1"
+        android:scaleType="centerCrop"
+        android:background="@android:color/white"
+        android:contentDescription="AI generated image" />
 
-</FrameLayout>
+</LinearLayout>

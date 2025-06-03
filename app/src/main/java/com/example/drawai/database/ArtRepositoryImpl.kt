@@ -26,4 +26,8 @@ class ArtRepositoryImpl @Inject constructor(
     override suspend fun getSavedArts(): List<ArtEntity> {
         return artDao.getAllArts()
     }
+
+    override fun ArtEntity(id: ByteArray, originalImage: ByteArray): ArtEntity {
+        TODO("Not yet implemented")
+    }
 }
