@@ -1,3 +1,4 @@
+/*
 package com.example.drawai.api
 
 import com.google.gson.annotations.SerializedName
@@ -36,4 +37,4 @@ data class StableDiffusionResponse(
 data class Artifact(
     @SerializedName("base64")
     val base64Image: String  // Base64 результата
-)
+)*/

@@ -3,7 +3,6 @@ package com.example.drawai.database
 import android.graphics.Bitmap
 import com.example.drawai.ArtRepository
 import com.example.drawai.api.ArtApi
-import com.example.drawai.api.ArtApi.Companion.API_KEY
 import com.example.drawai.api.BitmapConverter
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -15,25 +14,20 @@ class ArtRepositoryImpl @Inject constructor(
 ) : ArtRepository {
 
     override suspend fun generateAIArt(drawing: Bitmap): Bitmap {
+        // Конвертируем Bitmap в base64
         val imageBase64 = bitmapConverter.bitmapToBase64(drawing)
 
-        val request = ArtApi.StableDiffusionRequest(
-            initImage = imageBase64,
-            prompts = listOf(
-                ArtApi.TextPrompt("high-quality digital art, vibrant colors, detailed", 1f)
-            ),
-            imageStrength = 0.35f,
+        // Делаем запрос к API
+        val response = artApi.generateImage(
+            prompt = "high-quality digital art, vibrant colors, detailed",
+            image = imageBase64,
+            mode = "image-to-image",
             steps = 30
         )
 
-        val response = artApi.generateImage(
-            auth = API_KEY,
-            request = request
-        )
-
         if (response.isSuccessful) {
-            response.body()?.artifacts?.firstOrNull()?.base64Image?.let {
-                return bitmapConverter.base64ToBitmap(it)
+            response.body()?.image?.let { base64Image ->
+                return bitmapConverter.base64ToBitmap(base64Image)
             } ?: throw Exception("Empty API response")
         } else {
             throw Exception("API error: ${response.errorBody()?.string()}")
