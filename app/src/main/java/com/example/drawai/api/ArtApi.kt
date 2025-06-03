@@ -21,8 +21,8 @@ interface ArtApi {
     data class StableDiffusionRequest(
         @SerializedName("init_image") val initImage: String,
         @SerializedName("text_prompts") val prompts: List<TextPrompt>,
-        @SerializedName("image_strength") val imageStrength: Float = 0.35f,
-        @SerializedName("steps") val steps: Int = 30
+        @SerializedName("image_strength") val imageStrength: Float,
+        @SerializedName("steps") val steps: Int
     )
 
     data class TextPrompt(
