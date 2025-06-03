@@ -1,8 +1,10 @@
 package com.example.drawai.database
 
 import android.graphics.Bitmap
+import com.example.drawai.ArtRepository
 import com.example.drawai.api.ArtApi
 import com.example.drawai.api.BitmapConverter
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class ArtRepositoryImpl @Inject constructor(
@@ -17,17 +19,15 @@ class ArtRepositoryImpl @Inject constructor(
         return bitmapConverter.base64ToBitmap(response.generatedImage)
     }
 
-    override suspend fun saveArt(original: Bitmap, generated: Bitmap) {
-        val originalBytes = bitmapConverter.bitmapToByteArray(original)
-        val generatedBytes = bitmapConverter.bitmapToByteArray(generated)
-        artDao.insertArt(ArtEntity(originalBytes, generatedBytes))
-    }
-
-    override suspend fun getSavedArts(): List<ArtEntity> {
+    override fun getSavedArts(): Flow<List<ArtEntity>> {
         return artDao.getAllArts()
     }
 
-    override fun ArtEntity(id: ByteArray, originalImage: ByteArray): ArtEntity {
-        TODO("Not yet implemented")
+    override suspend fun saveArt(original: Bitmap, generated: Bitmap) {
+        val entity = ArtEntity(
+            originalImage = bitmapConverter.bitmapToByteArray(original),
+            generatedImage = bitmapConverter.bitmapToByteArray(generated)
+        )
+        artDao.insertArt(entity)
     }
 }

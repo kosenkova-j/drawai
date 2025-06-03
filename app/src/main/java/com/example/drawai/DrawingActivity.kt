@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.drawai.api.Resource
+import com.example.drawai.databinding.ActivityDrawingBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -26,7 +27,7 @@ class DrawingActivity : AppCompatActivity() {
     }
 
     private fun setupDrawingView() {
-        binding.drawingView.apply {
+        binding.DrawingView.apply {
             setColor(Color.BLACK)
             setBrushSize(8f)
         }
@@ -34,11 +35,11 @@ class DrawingActivity : AppCompatActivity() {
 
     private fun setupButtons() {
         binding.btnClear.setOnClickListener {
-            binding.drawingView.clearCanvas()
+            binding.DrawingView.clearCanvas()
         }
 
         binding.btnGenerate.setOnClickListener {
-            viewModel.generateAIArt(binding.drawingView.getBitmap())
+            viewModel.generateAIArt(binding.DrawingView.getBitmap())
         }
     }
 

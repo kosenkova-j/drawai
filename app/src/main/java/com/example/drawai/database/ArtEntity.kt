@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "artworks")
 data class ArtEntity(
-    @PrimaryKey(autoGenerate = true) val id: ByteArray = 0,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val originalImage: ByteArray,  // Байтовый массив оригинального рисунка
     val generatedImage: ByteArray, // Байтовый массив сгенерированного изображения
     val createdAt: Long = System.currentTimeMillis()
