@@ -35,32 +35,32 @@ object AppModule {
     @Singleton
     fun provideArtDao(database: ArtDatabase): ArtDao = database.artDao()
 
-    @Provides
-    @Singleton
-    fun provideRetrofit(): Retrofit {
-        return Retrofit.Builder()
-            .baseUrl("https://api.example.com/") // Replace with actual API URL
-            .addConverterFactory(GsonConverterFactory.create())
-            .client(OkHttpClient.Builder().addInterceptor(HttpLoggingInterceptor()).build())
-            .build()
-    }
+//    @Provides
+//    @Singleton
+//    fun provideRetrofit(): Retrofit {
+//        return Retrofit.Builder()
+//            .baseUrl("https://api.example.com/") // Replace with actual API URL
+//            .addConverterFactory(GsonConverterFactory.create())
+//            .client(OkHttpClient.Builder().addInterceptor(HttpLoggingInterceptor()).build())
+//            .build()
+//    }
 
-    @Provides
-    @Singleton
-    fun provideArtApi(): ArtApi {
-        val client = OkHttpClient.Builder()
-            .addInterceptor(HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
-            })
-            .build()
-
-        return Retrofit.Builder()
-            .baseUrl(ArtApi.BASE_URL)
-            .client(client)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(ArtApi::class.java)
-    }
+//    @Provides
+//    @Singleton
+//    fun provideArtApi(): ArtApi {
+//        val client = OkHttpClient.Builder()
+//            .addInterceptor(HttpLoggingInterceptor().apply {
+//                level = HttpLoggingInterceptor.Level.BODY
+//            })
+//            .build()
+//
+//        return Retrofit.Builder()
+//            .baseUrl(ArtApi.BASE_URL)
+//            .client(client)
+//            .addConverterFactory(GsonConverterFactory.create())
+//            .build()
+//            .create(ArtApi::class.java)
+//    }
 
     @Provides
     @Singleton
