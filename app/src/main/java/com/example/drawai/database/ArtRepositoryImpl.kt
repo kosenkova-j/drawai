@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.IOException
 import javax.inject.Inject
 
 class ArtRepositoryImpl @Inject constructor(
@@ -17,40 +18,38 @@ class ArtRepositoryImpl @Inject constructor(
 ) : ArtRepository {
 
     override suspend fun generateAIArt(drawing: Bitmap): Bitmap {
-        val imagePart = drawing.let { bitmap ->
-            val byteArray = bitmapConverter.bitmapToByteArray(bitmap)
-            val requestFile = byteArray.toRequestBody("image/*".toMediaTypeOrNull())
-            MultipartBody.Part.createFormData("image", "input.png", requestFile)
-        }
+        val imagePart = MultipartBody.Part.createFormData(
+            "image",
+            "input.png",
+            bitmapConverter.bitmapToByteArray(drawing)
+                .toRequestBody("image/png".toMediaTypeOrNull())
+        )
 
-//        val response = artApi.generateImage(
-//            auth = "Bearer sk-zeepJc7LBeM38XUDrStRtODcyfpU65oA72Mba1BxK4WCDfci", // Лучше через DI
-//            prompt = "high-quality digital art",
-//            image = imagePart,
-//            mode = "image-to-image",
-//            steps = 30
-//        )
-
-        val modeRequestBody = "image-to-image".toRequestBody("text/plain".toMediaTypeOrNull())
-        val promptRequestBody = artApi.prompt.toRequestBody("text/plain".toMediaTypeOrNull())
-        val stepsRequestBody = steps.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+        val prompt = "high-quality digital art, vibrant colors, detailed"
+        val promptBody = prompt.toRequestBody("text/plain".toMediaTypeOrNull())
+        val modeBody = "image-to-image".toRequestBody("text/plain".toMediaTypeOrNull())
+        val stepsBody = "30".toRequestBody("text/plain".toMediaTypeOrNull())
+        val strengthBody = "0.35".toRequestBody("text/plain".toMediaTypeOrNull())
+        val seedBody = System.currentTimeMillis().toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
         val response = artApi.generateImage(
             auth = "Bearer sk-zeepJc7LBeM38XUDrStRtODcyfpU65oA72Mba1BxK4WCDfci",
-            prompt = promptRequestBody,
+            prompt = promptBody,
             image = imagePart,
-            mode = modeRequestBody,
-            steps = stepsRequestBody
+            mode = modeBody,
+            strength = strengthBody,
+            seed = seedBody,
+            steps = stepsBody
         )
 
+        // 4. Обработка ответа
         if (!response.isSuccessful) {
-            val errorBody = response.errorBody()?.string()
-            throw Exception("API error: $errorBody")
+            throw IOException("API error: ${response.errorBody()?.string()}")
         }
 
         return response.body()?.image?.let {
             bitmapConverter.base64ToBitmap(it)
-        } ?: throw Exception("Empty response")
+        } ?: throw IOException("Empty response")
     }
 
     override fun getSavedArts(): Flow<List<ArtEntity>> {

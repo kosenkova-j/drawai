@@ -19,6 +19,7 @@ interface ArtApi {
         @Part("prompt") prompt: RequestBody,
         @Part image: MultipartBody.Part?,
         @Part("mode") mode: RequestBody,
+        @Part("strength") strength: RequestBody,
         @Part("seed") seed: RequestBody?,
         @Part("steps") steps: RequestBody?
     ): Response<StableDiffusionResponse>
