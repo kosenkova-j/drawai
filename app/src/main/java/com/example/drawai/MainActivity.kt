@@ -14,6 +14,17 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+
+    suspend fun checkApiAvailability(): Boolean {
+        return try {
+            val runtime = Runtime.getRuntime()
+            val process = runtime.exec("/system/bin/ping -c 1 api.stability.ai")
+            process.waitFor() == 0
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     private lateinit var binding: ActivityMainBinding
     private val viewModel: DrawingViewModel by viewModels()
 

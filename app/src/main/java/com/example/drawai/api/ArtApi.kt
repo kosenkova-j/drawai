@@ -2,6 +2,7 @@ package com.example.drawai.api
 
 import com.google.gson.annotations.SerializedName
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -15,11 +16,11 @@ interface ArtApi {
     @POST("$API_VERSION/stable-image/generate/sd3")
     suspend fun generateImage(
         @Header("Authorization") auth: String,
-        @Part("prompt") prompt: String,
-        @Part image: MultipartBody.Part? = null,
-        @Part("mode") mode: String? = "text-to-image",
-        @Part("seed") seed: Int? = null,
-        @Part("steps") steps: Int? = null
+        @Part("prompt") prompt: RequestBody,
+        @Part image: MultipartBody.Part?,
+        @Part("mode") mode: RequestBody,
+        @Part("seed") seed: RequestBody?,
+        @Part("steps") steps: RequestBody?
     ): Response<StableDiffusionResponse>
 
     // Модель ответа
