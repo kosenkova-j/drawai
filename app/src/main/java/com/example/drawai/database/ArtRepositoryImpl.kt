@@ -30,7 +30,8 @@ class ArtRepositoryImpl @Inject constructor(
         val modeBody = "image-to-image".toRequestBody("text/plain".toMediaTypeOrNull())
         val stepsBody = "30".toRequestBody("text/plain".toMediaTypeOrNull())
         val strengthBody = "0.35".toRequestBody("text/plain".toMediaTypeOrNull())
-        val seedBody = System.currentTimeMillis().toString().toRequestBody("text/plain".toMediaTypeOrNull())
+        val seed = (0..4_294_967_294L).random()
+        val seedBody = seed.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
         val response = artApi.generateImage(
             auth = "Bearer sk-zeepJc7LBeM38XUDrStRtODcyfpU65oA72Mba1BxK4WCDfci",
