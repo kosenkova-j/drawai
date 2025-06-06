@@ -7,7 +7,7 @@ import javax.inject.Inject
 
 class GenerateAIArtUseCase @Inject constructor(
     private val repository: ArtRepository,
-    private val yandexArtApi: ArtApi
+    val yandexArtApi: ArtApi
 ) {
     // Генерация арта через Yandex Art API
     class GenerateArt @Inject constructor(

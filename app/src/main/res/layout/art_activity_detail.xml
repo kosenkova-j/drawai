@@ -1,0 +1,141 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="art"
+            type="com.example.drawai.domain.Art"/>
+        <variable
+            name="activity"
+            type="com.example.drawai.art.ArtActivity"/>
+    </data>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- AppBar -->
+        <com.google.android.material.appbar.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/ThemeOverlay.Material3.Dark.ActionBar">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:navigationIcon="@mipmap/ic_arrow_back_foreground"
+                app:navigationOnClick="@{() -> activity.finish()}"
+                app:title="@{art.prompt}" />
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <!-- Основной контент -->
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Изображение арта -->
+                <ImageView
+                    android:id="@+id/artImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerCrop"
+                    app:imageUrl="@{art.imageUrl}"
+                    app:placeholderImageUrl="@{@drawable/ic_image_placeholder, art.imageUrl}"
+                    tools:src="@drawable/sample_art"/>
+
+                <!-- Карточка с метаданными -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    app:cardElevation="4dp"
+                    app:cardCornerRadius="8dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <!-- Промпт -->
+                        <TextView
+                            android:id="@+id/promptText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@{art.prompt}"
+                            android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
+                            android:textColor="?attr/colorOnSurface"/>
+
+                        <!-- Дата создания -->
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            app:formattedDate="@{art.createdAt}"
+                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                            android:textColor="?attr/colorOnSurfaceVariant"/>
+
+                        <!-- Стиль (если есть) -->
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="@{art.style ?? @string/no_style}"
+                            android:visibility="@{art.style != null ? View.VISIBLE : View.GONE}"
+                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"/>
+
+                        <!-- Кнопки действий -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/saveButton"
+                                style="@style/Widget.Material3.Button.Outlined"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginEnd="8dp"
+                                android:text="@string/save_to_gallery"/>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/shareButton"
+                                style="@style/Widget.Material3.Button"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/share"/>
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+
+        <!-- Кнопка избранного -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/favButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:contentDescription="@string/toggle_favorite"
+            app:layout_anchor="@id/artImage"
+            app:layout_anchorGravity="bottom|end"
+            app:srcCompat="@{art.isFavorite ? @drawable/ic_favorite_filled : @drawable/ic_favorite_outline}"
+            app:tint="@{art.isFavorite ? @color/red_500 : @color/white}"/>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

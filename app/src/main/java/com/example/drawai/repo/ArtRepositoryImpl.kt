@@ -2,7 +2,7 @@ package com.example.drawai.data.repository
 
 import com.example.drawai.api.ArtApi
 import com.example.drawai.database.ArtDao
-import com.example.drawai.data.mapper.ArtMapper
+import com.example.drawai.database.ArtMapper
 import com.example.drawai.domain.Art
 import com.example.drawai.domain.ResultState
 import com.example.drawai.repo.ArtRepository
@@ -59,7 +59,7 @@ class ArtRepositoryImpl @Inject constructor(
             val imageUrl = operation.response?.images?.firstOrNull()?.url
                 ?: return ResultState.Error("No image generated")
 
-            val art = Art(prompt = prompt, imageUrl = imageUrl)
+            val art = Art(prompt = prompt, imageUrl = imageUrl, createdAt = System.currentTimeMillis())
             ResultState.Success(art)
         } catch (e: Exception) {
             ResultState.Error(e.message ?: "Unknown error")

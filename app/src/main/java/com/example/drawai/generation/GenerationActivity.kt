@@ -1,5 +1,6 @@
 package com.example.drawai.generation
 
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Bundle
@@ -7,77 +8,50 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import com.drawai.presentation.gallery.GalleryActivity
+import com.example.drawai.databinding.ActivityArtGenerationBinding
 import com.example.drawai.databinding.ActivityDrawingBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class DrawingActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityDrawingBinding
-    private val viewModel: DrawingViewModel by viewModels()
+class GenerationActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityArtGenerationBinding
+    private val viewModel: GenerationViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityDrawingBinding.inflate(layoutInflater)
+        binding = ActivityArtGenerationBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = this
 
-        setupDrawingView()
-        setupButtons()
+        setupToolbar()
+        setupListeners()
         observeViewModel()
     }
 
-    private fun setupDrawingView() {
-        binding.DrawingView.apply {
-            setColor(Color.BLACK)
-            setBrushSize(8f)
-        }
+    private fun setupToolbar() {
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        binding.toolbar.setNavigationOnClickListener { finish() }
     }
 
-    private fun setupButtons() {
-        binding.btnClear.setOnClickListener {
-            binding.DrawingView.clearCanvas()
+    private fun setupListeners() {
+        binding.generateButton.setOnClickListener {
+            viewModel.generateArt()
         }
 
-        binding.btnGenerate.setOnClickListener {
-            viewModel.generateAIArt(binding.DrawingView.getBitmap())
+        binding.saveButton.setOnClickListener {
+            viewModel.saveArt()
+            finish() // Закрываем после сохранения
         }
     }
 
     private fun observeViewModel() {
-        viewModel.artGenerationState.observe(this) { state ->
-            when (state) {
-                is Resource.Loading -> {
-                    binding.progressBar.visibility = View.VISIBLE
-                    binding.btnGenerate.isEnabled = false
-                }
-                is Resource.Success -> {
-                    binding.progressBar.visibility = View.GONE
-                    binding.btnGenerate.isEnabled = true
-                    showResult(state.data)
-                }
-                is Resource.Error -> {
-                    binding.progressBar.visibility = View.GONE
-                    binding.btnGenerate.isEnabled = true
-                    Toast.makeText(
-                        this,
-                        state.message ?: "Error generating art",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-        }
-    }
-
-    private fun showResult(bitmap: Bitmap?) {
-        bitmap?.let {
-            binding.generatedImageView.visibility = View.VISIBLE
-            binding.generatedImageView.setImageBitmap(it)
-            binding.btnSave.visibility = View.VISIBLE
-
-            binding.btnSave.setOnClickListener {
-                viewModel.saveArt(
-                    original = binding.DrawingView.getBitmap(),
-                    generated = bitmap
-                )
+        viewModel.navigateToGallery.observe(this) { shouldNavigate ->
+            if (shouldNavigate) {
+                startActivity(Intent(this, GalleryActivity::class.java))
                 finish()
             }
         }

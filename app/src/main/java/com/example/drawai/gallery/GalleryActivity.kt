@@ -8,9 +8,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.drawai.databinding.ActivityGalleryBinding
 import com.drawai.gallery.GalleryViewModel
-import com.drawai.presentation.detail.ArtDetailActivity
 import com.example.drawai.R
-import com.example.drawai.generation.ArtGenerationActivity
+import com.example.drawai.art.ArtActivity
+import com.example.drawai.generation.GenerationActivity
 import com.example.drawai.common.OnArtItemClickListener
 import com.example.drawai.domain.Art
 import com.example.drawai.domain.ArtAdapter
@@ -65,7 +65,7 @@ class GalleryActivity : AppCompatActivity(), OnArtItemClickListener {
         }
 
         viewModel.navigateToGeneration.observe(this) {
-            startActivity(ArtGenerationActivity.newIntent(this))
+            startActivity(GenerationActivity.newIntent(this))
         }
     }
 
@@ -95,6 +95,6 @@ class GalleryActivity : AppCompatActivity(), OnArtItemClickListener {
     }
 
     override fun onClick(art: Art) {
-        startActivity(ArtDetailActivity.newIntent(this, art.id))
+        startActivity(ArtActivity.newIntent(this, art.id))
     }
 }

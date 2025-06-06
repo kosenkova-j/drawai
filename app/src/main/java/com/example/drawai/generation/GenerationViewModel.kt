@@ -6,35 +6,54 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.drawai.domain.Art
 import com.example.drawai.domain.GenerateAIArtUseCase
+import com.example.drawai.repo.ArtRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class GenerationViewModel @Inject constructor(
-    private val artUseCases: GenerateAIArtUseCase
+    private val generateAIArtUseCase: GenerateAIArtUseCase,
+    private val repository: ArtRepository
 ) : ViewModel() {
-    private val _generatedArt = MutableLiveData<Art?>()
-    val generatedArt: LiveData<Art?> = _generatedArt
 
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> = _isLoading
+    val promptText = MutableLiveData<String>()
+    val isLoading = MutableLiveData(false)
+    val generatedArt = MutableLiveData<Art?>(null)
+    val errorMessage = MutableLiveData<String?>(null)
+    val navigateToGallery = MutableLiveData(false)
 
-    private val _error = MutableLiveData<String?>()
-    val error: LiveData<String?> = _error
+    fun generateArt() {
+        val prompt = promptText.value?.trim()
+        if (prompt.isNullOrEmpty()) {
+            errorMessage.value = "Please enter a prompt"
+            return
+        }
 
-    fun generateArt(prompt: String, token: String) {
-        _isLoading.value = true
         viewModelScope.launch {
-            try {
-                val result = artUseCases.GenerateArt()(prompt, token)
-                _generatedArt.value = result.getOrNull()
-                _error.value = result.exceptionOrNull()?.message
-            } catch (e: Exception) {
-                _error.value = e.message
-                _generatedArt.value = null
-            } finally {
-                _isLoading.value = false
+            isLoading.value = true
+            errorMessage.value = null
+
+            when (val result = GenerateAIArtUseCase.GenerateArt(
+                repository,
+                generateAIArtUseCase.yandexArtApi
+            ).invoke(prompt)) {
+                is Result.Success -> {
+                    generatedArt.value = result.getOrNull()
+                }
+                is Result.Failure -> {
+                    errorMessage.value = result.exceptionOrNull()?.message ?: "Generation failed"
+                }
+            }
+            isLoading.value = false
+        }
+    }
+
+    fun saveArt() {
+        generatedArt.value?.let { art ->
+            viewModelScope.launch {
+                repository.saveArt(art)
+                navigateToGallery.value = true
             }
         }
     }

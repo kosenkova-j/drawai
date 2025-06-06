@@ -6,15 +6,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.drawai.domain.Art
 import com.example.drawai.domain.GenerateAIArtUseCase
+import com.example.drawai.repo.ArtRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class GalleryViewModel @Inject constructor(
-    private val artUseCases: GenerateAIArtUseCase
+    //private val generateAIArtUseCase: GenerateAIArtUseCase
+    private val repository: ArtRepository
 ) : ViewModel() {
     private val _arts = MutableLiveData<List<Art>>()
     val arts: LiveData<List<Art>> = _arts
@@ -32,8 +32,15 @@ class GalleryViewModel @Inject constructor(
     fun loadArts() {
         viewModelScope.launch {
             _isLoading.value = true
-            _arts.value = artUseCases.GetAllArts()()
+            _arts.value = GenerateAIArtUseCase.GetAllArts(repository)()
             _isLoading.value = false
+        }
+    }
+
+    fun deleteArt(art: Art) {
+        viewModelScope.launch {
+            GenerateAIArtUseCase.DeleteArt(repository)(art)
+            loadArts()
         }
     }
 
@@ -41,12 +48,6 @@ class GalleryViewModel @Inject constructor(
         loadArts()
     }
 
-    fun deleteArt(art: Art) {
-        viewModelScope.launch {
-            artUseCases.DeleteArt()(art)
-            loadArts() // Обновляем список после удаления
-        }
-    }
 
     fun onCreateNewArtClicked() {
         _navigateToGeneration.value = true
