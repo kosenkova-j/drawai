@@ -1,4 +1,4 @@
-package com.example.drawai
+package com.example.drawai.generation
 
 import android.graphics.Bitmap
 import android.graphics.Color

@@ -1,4 +1,4 @@
-package com.example.drawai
+package com.example.drawai.generation
 
 import android.graphics.Bitmap
 import androidx.lifecycle.LiveData
@@ -8,6 +8,9 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.drawai.api.Resource
 import com.example.drawai.database.ArtEntity
+import com.example.drawai.domain.GenerateAIArtUseCase
+import com.example.drawai.domain.GetSavedArtsUseCase
+import com.example.drawai.domain.SaveArtUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch

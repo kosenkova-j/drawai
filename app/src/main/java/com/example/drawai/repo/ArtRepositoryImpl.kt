@@ -1,9 +1,10 @@
-package com.example.drawai.database
+package com.example.drawai.repo
 
 import android.graphics.Bitmap
-import com.example.drawai.ArtRepository
 import com.example.drawai.api.ArtApi
 import com.example.drawai.api.BitmapConverter
+import com.example.drawai.database.ArtDao
+import com.example.drawai.database.ArtEntity
 import kotlinx.coroutines.flow.Flow
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody

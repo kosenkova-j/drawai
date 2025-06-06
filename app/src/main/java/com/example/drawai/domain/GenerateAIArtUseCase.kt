@@ -1,7 +1,8 @@
-package com.example.drawai
+package com.example.drawai.domain
 
 import android.graphics.Bitmap
 import com.example.drawai.database.ArtEntity
+import com.example.drawai.repo.ArtRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 

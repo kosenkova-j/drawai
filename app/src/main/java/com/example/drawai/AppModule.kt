@@ -1,8 +1,10 @@
-package com.example.drawai.database
+package com.example.drawai
 
 import android.content.Context
 import androidx.room.Room
 import com.example.drawai.api.BitmapConverter
+import com.example.drawai.database.ArtDao
+import com.example.drawai.database.ArtDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

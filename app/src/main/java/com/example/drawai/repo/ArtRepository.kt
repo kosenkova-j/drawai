@@ -1,4 +1,4 @@
-package com.example.drawai
+package com.example.drawai.repo
 
 import android.graphics.Bitmap
 import com.example.drawai.database.ArtEntity
