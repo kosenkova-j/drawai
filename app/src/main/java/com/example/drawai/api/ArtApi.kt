@@ -7,31 +7,16 @@ import retrofit2.Response
 import retrofit2.http.*
 
 interface ArtApi {
-    companion object {
-        const val BASE_URL = "https://api.stability.ai/"
-        const val API_VERSION = "v2beta"
-    }
+    @POST("generate")
+    suspend fun generateArtwork(
+        @Header("Authorization") token: String,
+        @Body request: GenerationRequest
+    ): Response<ArtworkResponse>
 
-    @Multipart
-    @POST("$API_VERSION/stable-image/generate/sd3")
-    suspend fun generateImage(
-        @Header("Authorization") auth: String,
-        @Part("prompt") prompt: RequestBody,
-        @Part image: MultipartBody.Part?,
-        @Part("mode") mode: RequestBody,
-        @Part("strength") strength: RequestBody,
-        @Part("seed") seed: RequestBody?,
-        @Part("steps") steps: RequestBody?
-    ): Response<StableDiffusionResponse>
-
-    // Модель ответа
-    data class StableDiffusionResponse(
-        @field:SerializedName("image") val image: String?
-    )
-
-    // Модель ошибки
-    data class ApiError(
-        @field:SerializedName("message") val message: String?,
-        @field:SerializedName("errors") val errors: List<String>?
-    )
+    data class GenerationRequest(val prompt: String)
 }
+
+data class ArtworkResponse(
+    @SerializedName("image_url") val imageUrl: String,
+    @SerializedName("prompt") val prompt: String
+)

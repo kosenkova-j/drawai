@@ -1,54 +1,41 @@
 package com.example.drawai.generation
 
-import android.graphics.Bitmap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.example.drawai.api.Resource
-import com.example.drawai.database.ArtEntity
+import com.example.drawai.domain.Art
 import com.example.drawai.domain.GenerateAIArtUseCase
-import com.example.drawai.domain.GetSavedArtsUseCase
-import com.example.drawai.domain.SaveArtUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class DrawingViewModel @Inject constructor(
-    private val generateAIArtUseCase: GenerateAIArtUseCase,
-    private val saveArtUseCase: SaveArtUseCase,
-    private val getSavedArtsUseCase: GetSavedArtsUseCase
+class GenerationViewModel @Inject constructor(
+    private val artUseCases: GenerateAIArtUseCase
 ) : ViewModel() {
+    private val _generatedArt = MutableLiveData<Art?>()
+    val generatedArt: LiveData<Art?> = _generatedArt
 
-    // Для генерации изображений
-    private val _artGenerationState = MutableLiveData<Resource<Bitmap>>()
-    val artGenerationState: LiveData<Resource<Bitmap>> = _artGenerationState
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
 
-    // Для списка сохраненных артов (используем Flow напрямую)
-    val savedArts: Flow<List<ArtEntity>> = getSavedArtsUseCase()
+    private val _error = MutableLiveData<String?>()
+    val error: LiveData<String?> = _error
 
-    // Если нужен LiveData для наблюдения во View
-    val savedArtsLiveData: LiveData<List<ArtEntity>> = savedArts.asLiveData()
-
-    fun generateAIArt(drawingBitmap: Bitmap) {
-        _artGenerationState.postValue(Resource.Loading())
+    fun generateArt(prompt: String, token: String) {
+        _isLoading.value = true
         viewModelScope.launch {
             try {
-                val result = generateAIArtUseCase(drawingBitmap)
-                _artGenerationState.postValue(Resource.Success(result))
+                val result = artUseCases.GenerateArt()(prompt, token)
+                _generatedArt.value = result.getOrNull()
+                _error.value = result.exceptionOrNull()?.message
             } catch (e: Exception) {
-                _artGenerationState.postValue(Resource.Error(e.message ?: "Error generating art"))
+                _error.value = e.message
+                _generatedArt.value = null
+            } finally {
+                _isLoading.value = false
             }
-        }
-    }
-
-    fun saveArt(original: Bitmap, generated: Bitmap) {
-        viewModelScope.launch {
-            saveArtUseCase(original, generated)
-            // Flow автоматически обновится при изменении в БД
         }
     }
 }

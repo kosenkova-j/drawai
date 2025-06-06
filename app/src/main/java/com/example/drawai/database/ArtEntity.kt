@@ -6,24 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "artworks")
 data class ArtEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val originalImage: ByteArray,
-    val generatedImage: ByteArray,
+    val prompt: String,
+    val imageUrl: String,
     val createdAt: Long = System.currentTimeMillis()
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        other as ArtEntity
-        if (id != other.id) return false
-        if (!originalImage.contentEquals(other.originalImage)) return false
-        if (!generatedImage.contentEquals(other.generatedImage)) return false
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = id.hashCode()
-        result = 31 * result + originalImage.contentHashCode()
-        result = 31 * result + generatedImage.contentHashCode()
-        return result
-    }
-}
+)
