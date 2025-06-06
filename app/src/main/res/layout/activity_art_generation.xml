@@ -68,7 +68,7 @@
                 android:layout_marginTop="16dp"
                 android:scaleType="centerCrop"
                 app:imageUrl="@{viewModel.generatedArt.imageUrl}"
-                app:placeholderImageUrl="@{@drawable/ic_image_placeholder, viewModel.generatedArt.imageUrl}"
+                tools:src="@drawable/ic_image_placeholder"
                 app:visibleIf="@{viewModel.generatedArt != null}" />
 
             <!-- Кнопка сохранения -->

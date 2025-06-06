@@ -50,8 +50,7 @@
                     android:adjustViewBounds="true"
                     android:scaleType="centerCrop"
                     app:imageUrl="@{art.imageUrl}"
-                    app:placeholderImageUrl="@{@drawable/ic_image_placeholder, art.imageUrl}"
-                    tools:src="@drawable/sample_art"/>
+                    tools:src="@android:drawable/btn_star_big_on" />
 
                 <!-- Карточка с метаданными -->
                 <com.google.android.material.card.MaterialCardView
@@ -82,16 +81,6 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
                             app:formattedDate="@{art.createdAt}"
-                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="?attr/colorOnSurfaceVariant"/>
-
-                        <!-- Стиль (если есть) -->
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="@{art.style ?? @string/no_style}"
-                            android:visibility="@{art.style != null ? View.VISIBLE : View.GONE}"
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"/>
 
                         <!-- Кнопки действий -->

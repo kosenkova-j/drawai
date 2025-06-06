@@ -1,53 +1,57 @@
 package com.example.drawai
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.setupWithNavController
 import com.example.drawai.databinding.ActivityMainBinding
-import com.example.drawai.generation.DrawingActivity
-import com.example.drawai.generation.DrawingViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private val viewModel: DrawingViewModel by viewModels()
+    private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setupRecyclerView()
-        setupFab()
-        observeViewModel()
+        setupNavigation()
+        setupToolbar()
     }
 
-    private fun setupRecyclerView() {
-        binding.recyclerView.adapter = ArtAdapter { art ->
-            startActivity(Intent(this, DrawingActivity::class.java).apply {
-                putExtra("art_id", art.id)
-            })
-        }
-    }
+    private fun setupNavigation() {
+        val navHostFragment = supportFragmentManager.findFragmentById(
+            R.id.nav_host_fragment
+        ) as NavHostFragment
+        navController = navHostFragment.navController
 
-    private fun setupFab() {
-        binding.fabAdd.setOnClickListener {
-            startActivity(Intent(this, DrawingActivity::class.java))
-        }
-    }
+        // Настройка BottomNavigationView
+        binding.bottomNav.setupWithNavController(navController)
 
-    private fun observeViewModel() {
-        lifecycleScope.launch {
-            viewModel.savedArts.collect { arts ->
-                (binding.recyclerView.adapter as? ArtAdapter)?.submitList(arts)
-                binding.emptyView.visibility = if (arts.isEmpty()) View.VISIBLE else View.GONE
+        // Скрываем BottomNav на некоторых экранах
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.generationFragment, R.id.artDetailFragment -> {
+                    binding.bottomNav.visibility = View.GONE
+                }
+                else -> {
+                    binding.bottomNav.visibility = View.VISIBLE
+                }
             }
         }
+    }
+
+    private fun setupToolbar() {
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(false)
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        return navController.navigateUp() || super.onSupportNavigateUp()
     }
 }
