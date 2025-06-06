@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:title="@string/generate_new_art" />
+            app:title="Шедеврум" />
 
         <!-- Основной контент -->
         <LinearLayout
@@ -32,7 +32,7 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/prompt_hint">
+                android:hint="Милый рыжий пушистый кот в мультяшном стиле.">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/promptEditText"
@@ -47,9 +47,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="@string/generate"
+                android:text="Сгенерировать"
                 android:enabled="@{!viewModel.isLoading}"
-                app:icon="@drawable/ic_generate"
                 app:iconTint="@color/white" />
 
             <!-- Прогресс бар -->
@@ -68,7 +67,6 @@
                 android:layout_marginTop="16dp"
                 android:scaleType="centerCrop"
                 app:imageUrl="@{viewModel.generatedArt.imageUrl}"
-                tools:src="@drawable/ic_image_placeholder"
                 app:visibleIf="@{viewModel.generatedArt != null}" />
 
             <!-- Кнопка сохранения -->
@@ -77,7 +75,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="@string/save_art"
+                android:text="Сохранить"
                 app:visibleIf="@{viewModel.generatedArt != null}" />
 
             <!-- Сообщение об ошибке -->
@@ -86,7 +84,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:textColor="@color/red_500"
                 app:errorText="@{viewModel.errorMessage}" />
         </LinearLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

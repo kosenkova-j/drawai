@@ -12,6 +12,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.example.drawai.domain.Art
 import com.example.drawai.gallery.GalleryAdapter
+import com.google.android.material.appbar.MaterialToolbar
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -25,14 +26,9 @@ fun ImageView.setImageUrl(url: String?) {
     }
 }
 
-@BindingAdapter("placeholderImageUrl")
-fun ImageView.setImageUrlWithPlaceholder(url: String?, @DrawableRes placeholder: Int) {
-    Glide.with(context)
-        .load(url)
-        .placeholder(placeholder)
-        .error(placeholder)
-        .transition(DrawableTransitionOptions.withCrossFade())
-        .into(this)
+@BindingAdapter("navigationOnClick")
+fun MaterialToolbar.setNavigationOnClickListener(listener: () -> Unit) {
+    setNavigationOnClickListener { listener() }
 }
 
 @BindingAdapter("artItems")

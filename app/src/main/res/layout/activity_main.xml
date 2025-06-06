@@ -22,7 +22,7 @@
             android:layout_marginTop="?attr/actionBarSize"
             android:layout_marginBottom="56dp"
             app:defaultNavHost="true"
-            app:navGraph="@navigation/main_nav"/>
+            app:navGraph="@menu/main_nav"/>
 
         <!-- Bottom Navigation -->
         <com.google.android.material.bottomnavigation.BottomNavigationView

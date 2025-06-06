@@ -43,7 +43,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:imageUrl="@{art.imageUrl}"
-                tools:src="@drawable/ic_image_placeholder"
                 android:scaleType="centerCrop"/>
 
             <!-- Промпт -->
@@ -63,6 +62,8 @@
 
             <TextView
                 android:id="@+id/creationDate"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:formattedDate="@{art.createdAt}"/>
