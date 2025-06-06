@@ -7,7 +7,6 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.example.drawai.api.Resource
 import com.example.drawai.databinding.ActivityDrawingBinding
 import dagger.hilt.android.AndroidEntryPoint
 

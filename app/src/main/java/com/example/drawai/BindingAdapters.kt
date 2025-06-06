@@ -1,52 +1,71 @@
 package com.example.drawai
 
-import android.graphics.BitmapFactory
-import android.util.Log
-import android.view.LayoutInflater
-import android.view.ViewGroup
+import android.view.View
+import android.widget.ImageView
+import android.widget.ProgressBar
+import android.widget.TextView
+import androidx.annotation.DrawableRes
+import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.drawai.database.ArtEntity
-import com.example.drawai.databinding.ItemArtBinding
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.example.drawai.domain.Art
+import com.example.drawai.gallery.GalleryAdapter
+import java.text.SimpleDateFormat
+import java.util.*
 
-class ArtAdapter(
-    private val onItemClick: (ArtEntity) -> Unit
-) : RecyclerView.Adapter<ArtAdapter.ArtViewHolder>() {
-
-    private var arts = emptyList<ArtEntity>()
-
-    inner class ArtViewHolder(private val binding: ItemArtBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-
-        fun bind(art: ArtEntity) {
-            try {
-                binding.originalImage.setImageBitmap(
-                    BitmapFactory.decodeByteArray(art.originalImage, 0, art.originalImage.size)
-                )
-                binding.generatedImage.setImageBitmap(
-                    BitmapFactory.decodeByteArray(art.generatedImage, 0, art.generatedImage.size)
-                )
-            } catch (e: Exception) {
-                Log.e("ArtAdapter", "Error loading image", e)
-            }
-            binding.root.setOnClickListener { onItemClick(art) }
-        }
+@BindingAdapter("imageUrl")
+fun ImageView.setImageUrl(url: String?) {
+    url?.let {
+        Glide.with(context)
+            .load(it)
+            .transition(DrawableTransitionOptions.withCrossFade())
+            .into(this)
     }
+}
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArtViewHolder {
-        val binding = ItemArtBinding.inflate(
-            LayoutInflater.from(parent.context), parent, false
-        )
-        return ArtViewHolder(binding)
+@BindingAdapter("placeholderImageUrl")
+fun ImageView.setImageUrlWithPlaceholder(url: String?, @DrawableRes placeholder: Int) {
+    Glide.with(context)
+        .load(url)
+        .placeholder(placeholder)
+        .error(placeholder)
+        .transition(DrawableTransitionOptions.withCrossFade())
+        .into(this)
+}
+
+@BindingAdapter("artItems")
+fun RecyclerView.setArtItems(arts: List<Art>?) {
+    arts?.let {
+        (adapter as? GalleryAdapter)?.submitList(it)
     }
+}
 
-    override fun onBindViewHolder(holder: ArtViewHolder, position: Int) {
-        holder.bind(arts[position])
+@BindingAdapter("isRefreshing")
+fun SwipeRefreshLayout.setRefreshing(isRefreshing: Boolean?) {
+    isRefreshing?.let { this.isRefreshing = it }
+}
+
+@BindingAdapter("formattedDate")
+fun TextView.setFormattedDate(timestamp: Long?) {
+    timestamp?.let {
+        text = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault()).format(Date(it))
     }
+}
 
-    override fun getItemCount(): Int = arts.size
+@BindingAdapter("visibleIf")
+fun View.setVisible(visible: Boolean?) {
+    visibility = if (visible == true) View.VISIBLE else View.GONE
+}
 
-    fun submitList(newList: List<ArtEntity>) {
-        arts = newList
-        notifyDataSetChanged()
-    }
+@BindingAdapter("loadingState")
+fun ProgressBar.bindLoadingState(state: Boolean?) {
+    visibility = if (state == true) View.VISIBLE else View.GONE
+}
+
+@BindingAdapter("errorText")
+fun TextView.bindErrorText(message: String?) {
+    text = message ?: ""
+    visibility = if (message.isNullOrEmpty()) View.GONE else View.VISIBLE
 }

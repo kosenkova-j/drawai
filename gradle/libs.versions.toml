@@ -16,6 +16,8 @@ retrofit = "2.9.0"
 okhttp = "4.11.0"
 glide = "4.15.1"
 hilt = "2.47"
+swiperefreshlayout = "1.1.0"
+databinding-common = "8.10.1"
 
 [libraries]
 # Существующие зависимости
@@ -57,6 +59,8 @@ androidx-room-compiler = { group = "androidx.room", name = "room-compiler", vers
 # Image loading
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 glide-compiler = { group = "com.github.bumptech.glide", name = "compiler", version.ref = "glide" }
+androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
+androidx-databinding-common = { group = "androidx.databinding", name = "databinding-common", version.ref = "databinding-common" }
 
 [plugins]
 android-application = { id = "com.android.application", version = "8.1.0" }
