@@ -1,34 +1,79 @@
-package com.example.drawai.repo
+package com.example.drawai.data.repository
 
-import android.graphics.Bitmap
 import com.example.drawai.api.ArtApi
 import com.example.drawai.database.ArtDao
-import com.example.drawai.database.ArtEntity
+import com.example.drawai.data.mapper.ArtMapper
 import com.example.drawai.domain.Art
+import com.example.drawai.domain.ResultState
+import com.example.drawai.repo.ArtRepository
 import kotlinx.coroutines.flow.Flow
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.toRequestBody
-import java.io.IOException
+import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
-class ArtworkRepositoryImpl @Inject constructor(
-    private val remoteDataSource: ArtworkRemoteDataSource,
-    private val localDataSource: ArtDao
+class ArtRepositoryImpl @Inject constructor(
+    private val localDataSource: ArtDao,
+    private val remoteDataSource: ArtApi,
+    private val mapper: ArtMapper
 ) : ArtRepository {
-    override suspend fun generateArtwork(prompt: String, token: String): Art {
-        return remoteDataSource.generateArtwork(prompt, token)
+
+    // ========== Локальные операции ==========
+    override suspend fun getAllArts(): List<Art> {
+        return localDataSource.getAll().map { mapper.toDomain(it) }
     }
 
-    override suspend fun getArtworks(): List<Art> {
-        return localDataSource.getAll().map { it.toDomain() }
+    override suspend fun getArtById(id: Int): Art? {
+        return localDataSource.getById(id)?.let { mapper.toDomain(it) }
     }
 
-    override suspend fun saveArtwork(artwork: Art) {
-        localDataSource.insert(artwork.toEntity())
+    override suspend fun saveArt(art: Art) {
+        localDataSource.insert(mapper.toEntity(art))
     }
 
-    override suspend fun deleteArtwork(artwork: Art) {
-        localDataSource.delete(artwork.toEntity())
+    override suspend fun deleteArt(art: Art) {
+        localDataSource.delete(mapper.toEntity(art))
+    }
+
+    // ========== Удаленные операции ==========
+    override suspend fun generateArt(prompt: String): ResultState<Art> {
+        return try {
+            // 1. Генерация через API
+            val response = remoteDataSource.generateImage(
+                ArtApi.GenerationRequest(
+                    messages = listOf(ArtApi.GenerationRequest.Message(prompt)),
+                    options = ArtApi.GenerationRequest.GenerationOptions()
+                )
+            ).takeIf { it.isSuccessful }?.body()
+                ?: return ResultState.Error("Generation request failed")
+
+            // 2. Проверка статуса операции
+            var operation: ArtApi.OperationStatus
+            do {
+                operation = remoteDataSource.checkOperationStatus(response.operationId)
+                    .takeIf { it.isSuccessful }?.body()
+                    ?: return ResultState.Error("Operation check failed")
+
+                kotlinx.coroutines.delay(1000)
+            } while (!operation.done)
+
+            // 3. Обработка результата
+            val imageUrl = operation.response?.images?.firstOrNull()?.url
+                ?: return ResultState.Error("No image generated")
+
+            val art = Art(prompt = prompt, imageUrl = imageUrl)
+            ResultState.Success(art)
+        } catch (e: Exception) {
+            ResultState.Error(e.message ?: "Unknown error")
+        }
+    }
+
+    // ========== Комбинированные операции ==========
+    override suspend fun refreshArts(): ResultState<List<Art>> {
+        return try {
+            // В реальном приложении здесь может быть синхронизация с бэкендом
+            val localArts = localDataSource.getAll().map { mapper.toDomain(it) }
+            ResultState.Success(localArts)
+        } catch (e: Exception) {
+            ResultState.Error(e.message ?: "Failed to refresh arts")
+        }
     }
 }
