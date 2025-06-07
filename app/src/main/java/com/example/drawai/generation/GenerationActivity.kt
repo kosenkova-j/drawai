@@ -22,16 +22,16 @@ class GenerationActivity : AppCompatActivity() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
 
-        setupToolbar()
+        //setupToolbar()
         setupListeners()
         observeViewModel()
     }
 
-    private fun setupToolbar() {
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        binding.toolbar.setNavigationOnClickListener { finish() }
-    }
+//    private fun setupToolbar() {
+//        setSupportActionBar(binding.toolbar)
+//        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+//        binding.toolbar.setNavigationOnClickListener { finish() }
+//    }
 
     private fun setupListeners() {
         binding.generateButton.setOnClickListener {

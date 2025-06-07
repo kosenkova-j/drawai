@@ -1,57 +1,69 @@
 package com.example.drawai
 
+import android.content.Intent
 import android.os.Bundle
-import android.view.View
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.NavController
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.setupWithNavController
+import androidx.recyclerview.widget.GridLayoutManager
+import com.drawai.gallery.GalleryViewModel
+import com.example.drawai.art.ArtActivity
+import com.example.drawai.common.OnArtItemClickListener
 import com.example.drawai.databinding.ActivityMainBinding
+import com.example.drawai.domain.Art
+import com.example.drawai.domain.ArtAdapter
+import com.example.drawai.generation.GenerationActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OnArtItemClickListener {
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var navController: NavController
+    private val viewModel: GalleryViewModel by viewModels()
+    private lateinit var artAdapter: ArtAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setupNavigation()
-        setupToolbar()
+        setupRecyclerView()
+        setupObservers()
+        setupListeners()
     }
 
-    private fun setupNavigation() {
-        val navHostFragment = supportFragmentManager.findFragmentById(
-            R.id.nav_host_fragment
-        ) as NavHostFragment
-        navController = navHostFragment.navController
-
-        // Настройка BottomNavigationView
-        binding.bottomNav.setupWithNavController(navController)
-
-        // Скрываем BottomNav на некоторых экранах
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            when (destination.id) {
-                R.id.generationFragment, R.id.artDetailFragment -> {
-                    binding.bottomNav.visibility = View.GONE
-                }
-                else -> {
-                    binding.bottomNav.visibility = View.VISIBLE
+    private fun setupRecyclerView() {
+        artAdapter = ArtAdapter(
+            onItemClick = this,
+            onDeleteClick = object : OnArtItemClickListener {
+                override fun onClick(art: Art) {
+                    viewModel.deleteArt(art)
                 }
             }
+        )
+
+        binding.artsRecyclerView.apply {
+            adapter = artAdapter
+            layoutManager = GridLayoutManager(
+                this@MainActivity,
+                2 // Фиксированное количество колонок
+            )
+            setHasFixedSize(true)
         }
     }
 
-    private fun setupToolbar() {
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(false)
+    private fun setupObservers() {
+        viewModel.arts.observe(this) { arts ->
+            artAdapter.submitList(arts)
+        }
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        return navController.navigateUp() || super.onSupportNavigateUp()
+    private fun setupListeners() {
+        binding.fabCreateArt.setOnClickListener {
+            startActivity(Intent(this, GenerationActivity::class.java))
+        }
+    }
+
+    override fun onClick(art: Art) {
+        startActivity(ArtActivity.newIntent(this, art.id))
     }
 }

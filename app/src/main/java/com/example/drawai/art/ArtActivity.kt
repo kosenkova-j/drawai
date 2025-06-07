@@ -12,12 +12,12 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class ArtActivity : AppCompatActivity() {
 
-    private lateinit var binding: ArtActivityDetailBinding // Используйте правильное имя класса
+    private lateinit var binding: ArtActivityDetailBinding
     private val viewModel: ArtViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ArtActivityDetailBinding.inflate(layoutInflater) // Убедитесь, что имя класса правильное
+        binding = ArtActivityDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.activity = this
 

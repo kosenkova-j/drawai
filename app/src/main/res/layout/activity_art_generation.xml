@@ -8,83 +8,68 @@
             type="com.example.drawai.generation.GenerationViewModel" />
     </data>
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp">
 
-        <!-- AppBar -->
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
+        <!-- Поле ввода промпта -->
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:title="Шедеврум" />
+            android:layout_height="wrap_content"
+            android:hint="Милый рыжий пушистый кот в мультяшном стиле.">
 
-        <!-- Основной контент -->
-        <LinearLayout
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/promptEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@={viewModel.promptText}" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Кнопка генерации -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/generateButton"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:padding="16dp"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Сгенерировать"
+            android:enabled="@{!viewModel.isLoading}"
+            app:iconTint="@color/white" />
 
-            <!-- Поле ввода промпта -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Милый рыжий пушистый кот в мультяшном стиле.">
+        <!-- Прогресс бар -->
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
+            app:visibleIf="@{viewModel.isLoading}" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/promptEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@={viewModel.promptText}" />
-            </com.google.android.material.textfield.TextInputLayout>
+        <!-- Превью результата -->
+        <ImageView
+            android:id="@+id/artPreview"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_marginTop="16dp"
+            android:scaleType="centerCrop"
+            app:imageUrl="@{viewModel.generatedArt.imageUrl}"
+            app:visibleIf="@{viewModel.generatedArt != null}" />
 
-            <!-- Кнопка генерации -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/generateButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Сгенерировать"
-                android:enabled="@{!viewModel.isLoading}"
-                app:iconTint="@color/white" />
+        <!-- Кнопка сохранения -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/saveButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Сохранить"
+            app:visibleIf="@{viewModel.generatedArt != null}" />
 
-            <!-- Прогресс бар -->
-            <ProgressBar
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="16dp"
-                app:visibleIf="@{viewModel.isLoading}" />
-
-            <!-- Превью результата -->
-            <ImageView
-                android:id="@+id/artPreview"
-                android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:layout_marginTop="16dp"
-                android:scaleType="centerCrop"
-                app:imageUrl="@{viewModel.generatedArt.imageUrl}"
-                app:visibleIf="@{viewModel.generatedArt != null}" />
-
-            <!-- Кнопка сохранения -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/saveButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Сохранить"
-                app:visibleIf="@{viewModel.generatedArt != null}" />
-
-            <!-- Сообщение об ошибке -->
-            <TextView
-                android:id="@+id/errorText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                app:errorText="@{viewModel.errorMessage}" />
-        </LinearLayout>
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+        <!-- Сообщение об ошибке -->
+        <TextView
+            android:id="@+id/errorText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:errorText="@{viewModel.errorMessage}" />
+    </LinearLayout>
 </layout>
