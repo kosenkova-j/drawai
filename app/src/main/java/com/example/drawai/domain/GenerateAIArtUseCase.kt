@@ -7,73 +7,82 @@ import javax.inject.Inject
 
 class GenerateAIArtUseCase @Inject constructor(
     private val repository: ArtRepository,
-    val yandexArtApi: ArtApi
+    private val yandexArtApi: ArtApi
 ) {
     // Генерация арта через Yandex Art API
-    class GenerateArt @Inject constructor(
-        private val repository: ArtRepository,
-        private val yandexArtApi: ArtApi
-    ) {
-        suspend operator fun invoke(prompt: String): Result<Art> {
-            return try {
-                // 1. Отправка запроса на генерацию
-                val generationRequest = ArtApi.GenerationRequest(
-                    messages = listOf(ArtApi.GenerationRequest.Message(prompt)),
-                    options = ArtApi.GenerationRequest.GenerationOptions()
-                )
+    suspend fun generateArt(
+        prompt: String,
+        style: String? = null,
+        resolution: String = "1024x1024"
+    ): Art {
+        // 1. Отправка запроса на генерацию
+        val generationRequest = ArtApi.GenerationRequest(
+            messages = listOf(ArtApi.GenerationRequest.Message(prompt)),
+            resolution = resolution,
+            options = ArtApi.GenerationRequest.GenerationOptions()
+        )
 
-                val generationResponse = yandexArtApi.generateImage(generationRequest)
-                    .takeIf { it.isSuccessful }?.body()
-                    ?: return Result.failure(Exception("Generation request failed"))
+        val generationResponse = yandexArtApi.generateImage(generationRequest)
+            .takeIf { it.isSuccessful }?.body()
+            ?: throw Exception("Generation request failed")
 
-                // 2. Проверка статуса операции
-                var operationStatus: ArtApi.OperationStatus
-                do {
-                    delay(1000)
-                    operationStatus = yandexArtApi.checkOperationStatus(generationResponse.operationId)
-                        .takeIf { it.isSuccessful }?.body()
-                        ?: return Result.failure(Exception("Operation check failed"))
-                } while (!operationStatus.done)
+        // 2. Проверка статуса операции с таймаутом
+        var attempt = 0
+        val maxAttempts = 10
+        var operationStatus: ArtApi.OperationStatus
 
-                // 3. Обработка результата
-                val imageUrl = operationStatus.response?.images?.firstOrNull()?.url
-                    ?: return Result.failure(Exception("No image generated"))
+        do {
+            val delayMs = 1000L * (attempt + 1).coerceAtMost(5)
+            kotlinx.coroutines.delay(delayMs)
 
-                val art = Art(
-                    prompt = prompt,
-                    imageUrl = imageUrl,
-                    createdAt = System.currentTimeMillis())
-                Result.success(art)
-            } catch (e: Exception) {
-                Result.failure(e)
-            }
+            operationStatus = yandexArtApi.checkOperationStatus(generationResponse.operationId)
+                .takeIf { it.isSuccessful }?.body()
+                ?: throw Exception("Operation check failed")
+
+            attempt++
+        } while (!operationStatus.done && attempt < maxAttempts)
+
+        if (!operationStatus.done) {
+            throw Exception("Operation timeout after $maxAttempts attempts")
+        }
+
+        // 3. Получение результата
+        val imageUrl = operationStatus.response?.images?.firstOrNull()?.url
+            ?: throw Exception("No image generated in response")
+
+        return Art(
+            prompt = prompt,
+            resolution = resolution,
+            imageUrl = imageUrl,
+            createdAt = System.currentTimeMillis()
+        ).also {
+            repository.saveArt(it) // Автосохранение при успешной генерации
         }
     }
 
-    // Получение всех сохраненных артов
-    class GetAllArts @Inject constructor(
-        private val repository: ArtRepository
-    ) {
-        suspend operator fun invoke(): List<Art> {
-            return repository.getAllArts()
+    suspend fun getArtById(artId: Int): Art? {
+        return try {
+            repository.getArtById(artId)
+        } catch (e: Exception) {
+            null
         }
     }
 
-    // Удаление арта
-    class DeleteArt @Inject constructor(
-        private val repository: ArtRepository
-    ) {
-        suspend operator fun invoke(art: Art) {
+    // Метод получения всех артов
+    suspend fun getAllArts(): List<Art> {
+        return try {
+            repository.getAllArts()
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    // Метод удаления арта
+    suspend fun deleteArt(art: Art) {
+        try {
             repository.deleteArt(art)
-        }
-    }
-
-    // Получение арта по ID (дополнительный полезный юзкейс)
-    class GetArtById @Inject constructor(
-        private val repository: ArtRepository
-    ) {
-        suspend operator fun invoke(id: Int): Art? {
-            return repository.getArtById(id)
+        } catch (e: Exception) {
+            // Логирование ошибки
         }
     }
 }

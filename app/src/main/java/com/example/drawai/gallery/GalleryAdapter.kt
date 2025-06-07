@@ -1,6 +1,7 @@
 package com.example.drawai.gallery
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -10,11 +11,10 @@ import com.example.drawai.domain.Art
 import com.example.drawai.common.OnArtItemClickListener
 
 class GalleryAdapter(
-    private val onItemClick: OnArtItemClickListener,
-    private val onDeleteClick: OnArtItemClickListener? = null
+    private val OnItemClick: OnArtItemClickListener? = null,
+    private val OnDeleteClick: OnArtItemClickListener? = null
 ) : ListAdapter<Art, GalleryAdapter.ArtViewHolder>(ArtDiffCallback()) {
 
-    // 1. ViewHolder с ViewBinding
     inner class ArtViewHolder(
         private val binding: ItemArtBinding
     ) : RecyclerView.ViewHolder(binding.root) {
@@ -22,6 +22,22 @@ class GalleryAdapter(
         fun bind(art: Art) {
             binding.apply {
                 this.art = art
+
+                // Основной клик по элементу
+                root.setOnClickListener {
+                    OnItemClick?.onClick(art)
+                }
+
+                // Обработка кнопки удаления (если есть)
+                if (OnDeleteClick != null) {
+                    deleteButton.visibility = View.VISIBLE
+                    deleteButton.setOnClickListener {
+                        OnDeleteClick.onClick(art)
+                    }
+                } else {
+                    deleteButton.visibility = View.GONE
+                }
+
                 executePendingBindings()
             }
         }
@@ -47,7 +63,7 @@ class GalleryAdapter(
         ).apply {
             // Установка обработчиков кликов
             root.setOnClickListener {
-                art?.let { item -> onItemClick.onClick(item) }
+                art?.let { item -> OnItemClick?.onClick(item) }
             }
 
             // Опциональная кнопка удаления
@@ -63,10 +79,5 @@ class GalleryAdapter(
     // 4. Привязка данных
     override fun onBindViewHolder(holder: ArtViewHolder, position: Int) {
         holder.bind(getItem(position))
-    }
-
-    // 5. Дополнительные методы
-    fun getArtAtPosition(position: Int): Art? {
-        return if (position in 0 until itemCount) getItem(position) else null
     }
 }

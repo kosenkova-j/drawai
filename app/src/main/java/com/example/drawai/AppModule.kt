@@ -5,9 +5,12 @@ import androidx.room.Room
 import com.example.drawai.api.ArtApi
 import com.example.drawai.database.ArtDao
 import com.example.drawai.database.ArtDatabase
+import com.example.drawai.repo.ArtRepository
+import com.example.drawai.repo.GetArtByIdUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.Interceptor
@@ -24,6 +27,11 @@ object AppModule {
     private const val BASE_URL = "https://llm.api.cloud.yandex.net/"
     private const val FOLDER_ID = "b1gfib2713qvl7j5rrd7" // Замените на ваш folder_id
     private const val MODEL_ID = "art" // Идентификатор модели Yandex ART
+
+    @Provides
+    fun provideGetArtByIdUseCase(repository: ArtRepository): GetArtByIdUseCase {
+        return GetArtByIdUseCase(repository)
+    }
 
     @Provides
     @Singleton

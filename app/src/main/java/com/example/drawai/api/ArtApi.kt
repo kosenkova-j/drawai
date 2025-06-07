@@ -1,8 +1,6 @@
 package com.example.drawai.api
 
 import com.google.gson.annotations.SerializedName
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -20,7 +18,8 @@ interface ArtApi {
     data class GenerationRequest(
         @SerializedName("model") val model: String = "art://b1gfib2713qvl7j5rrd7/yandex-art/latest",
         @SerializedName("messages") val messages: List<Message>,
-        @SerializedName("generationOptions") val options: GenerationOptions
+        @SerializedName("generationOptions") val options: GenerationOptions,
+        val resolution: String
     ) {
         data class Message(
             @SerializedName("text") val text: String,

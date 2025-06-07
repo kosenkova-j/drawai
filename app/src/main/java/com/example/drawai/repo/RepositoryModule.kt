@@ -1,6 +1,5 @@
 package com.example.drawai.repo
 
-import com.example.drawai.data.repository.ArtRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

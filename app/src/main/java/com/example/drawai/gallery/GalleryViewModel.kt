@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.drawai.domain.Art
-import com.example.drawai.domain.GenerateAIArtUseCase
 import com.example.drawai.repo.ArtRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -13,7 +12,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class GalleryViewModel @Inject constructor(
-    //private val generateAIArtUseCase: GenerateAIArtUseCase
     private val repository: ArtRepository
 ) : ViewModel() {
     private val _arts = MutableLiveData<List<Art>>()
@@ -22,8 +20,8 @@ class GalleryViewModel @Inject constructor(
     private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
 
-    private val _navigateToGeneration = MutableLiveData(false)
-    val navigateToGeneration: LiveData<Boolean> = _navigateToGeneration
+    private val _navigateToGeneration = MutableLiveData<Event<Boolean>>()
+    val navigateToGeneration: LiveData<Event<Boolean>> = _navigateToGeneration
 
     init {
         loadArts()
@@ -32,15 +30,26 @@ class GalleryViewModel @Inject constructor(
     fun loadArts() {
         viewModelScope.launch {
             _isLoading.value = true
-            _arts.value = GenerateAIArtUseCase.GetAllArts(repository)()
-            _isLoading.value = false
+            try {
+                val artsList = repository.getAllArts() // Прямой вызов репозитория
+                _arts.value = artsList
+            } catch (e: Exception) {
+                // Обработка ошибок
+                _arts.value = emptyList()
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 
     fun deleteArt(art: Art) {
         viewModelScope.launch {
-            GenerateAIArtUseCase.DeleteArt(repository)(art)
-            loadArts()
+            try {
+                repository.deleteArt(art)
+                loadArts() // Перезагружаем список после удаления
+            } catch (e: Exception) {
+                // Обработка ошибок удаления
+            }
         }
     }
 
@@ -48,8 +57,21 @@ class GalleryViewModel @Inject constructor(
         loadArts()
     }
 
-
     fun onCreateNewArtClicked() {
-        _navigateToGeneration.value = true
+        _navigateToGeneration.value = Event(true)
+    }
+}
+
+// Класс-обертка для событий навигации (предотвращает многократные срабатывания)
+class Event<T>(private val content: T) {
+    private var hasBeenHandled = false
+
+    fun getContentIfNotHandled(): T? {
+        return if (hasBeenHandled) {
+            null
+        } else {
+            hasBeenHandled = true
+            content
+        }
     }
 }

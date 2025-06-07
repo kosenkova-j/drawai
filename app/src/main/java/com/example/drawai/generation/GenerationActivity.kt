@@ -1,5 +1,6 @@
 package com.example.drawai.generation
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
@@ -44,11 +45,19 @@ class GenerationActivity : AppCompatActivity() {
     }
 
     private fun observeViewModel() {
-        viewModel.navigateToGallery.observe(this) { shouldNavigate ->
-            if (shouldNavigate) {
-                startActivity(Intent(this, GalleryActivity::class.java))
-                finish()
+        viewModel.navigateToGallery.observe(this) { event ->
+            event.getContentIfNotHandled()?.let { shouldNavigate ->
+                if (shouldNavigate) {
+                    startActivity(Intent(this, GalleryActivity::class.java))
+                    finish()
+                }
             }
+        }
+    }
+
+    companion object {
+        fun newIntent(context: Context): Intent {
+            return Intent(context, GenerationActivity::class.java)
         }
     }
 }

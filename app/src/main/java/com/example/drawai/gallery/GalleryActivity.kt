@@ -6,7 +6,7 @@ import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
-import com.example.drawai.databinding.ActivityGalleryBinding
+import com.example.drawai.databinding.GalleryActivityBinding
 import com.drawai.gallery.GalleryViewModel
 import com.example.drawai.R
 import com.example.drawai.art.ArtActivity
@@ -19,13 +19,13 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class GalleryActivity : AppCompatActivity(), OnArtItemClickListener {
 
-    private lateinit var binding: ActivityGalleryBinding
+    private lateinit var binding: GalleryActivityBinding
     private val viewModel: GalleryViewModel by viewModels()
     private lateinit var artAdapter: ArtAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityGalleryBinding.inflate(layoutInflater)
+        binding = GalleryActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         setupToolbar()

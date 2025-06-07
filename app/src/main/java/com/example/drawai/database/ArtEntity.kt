@@ -8,8 +8,7 @@ import com.google.gson.annotations.SerializedName
 data class ArtEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val prompt: String,
+    val resolution : String,
     val imageUrl: String,
     val createdAt: Long = System.currentTimeMillis()
 )
-
-// data/mapper/ArtMapper.kt

@@ -8,6 +8,7 @@ class ArtMapper @Inject constructor() {
         id = entity.id,
         prompt = entity.prompt,
         imageUrl = entity.imageUrl,
+        resolution = entity.resolution,
         createdAt = entity.createdAt
     )
 
@@ -15,6 +16,7 @@ class ArtMapper @Inject constructor() {
         id = domain.id,
         prompt = domain.prompt,
         imageUrl = domain.imageUrl,
+        resolution = domain.resolution ?: "1024x1024",
         createdAt = domain.createdAt
     )
 }

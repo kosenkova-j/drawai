@@ -1,9 +1,9 @@
 package com.example.drawai.art
 
+import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -20,10 +20,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
-import java.io.OutputStream
 import javax.inject.Inject
 
 @HiltViewModel
@@ -32,17 +30,40 @@ class ArtViewModel @Inject constructor(
     @ApplicationContext private val appContext: Context
 ) : ViewModel() {
 
-    private val _art = MutableLiveData<Art>()
-    val art: LiveData<Art> = _art
+    private var resolver: ContentResolver = appContext.contentResolver
 
     private val _toastMessage = MutableLiveData<String>()
     val toastMessage: LiveData<String> = _toastMessage
 
+    private val _art = MutableLiveData<Art?>()
+    val art: MutableLiveData<Art?> = _art
+
+    private val _isLoading = MutableLiveData(false)
+    val isLoading: LiveData<Boolean> = _isLoading
+
+    private val _error = MutableLiveData<String?>(null)
+    val error: LiveData<String?> = _error
+
     fun loadArt(artId: Int) {
         viewModelScope.launch {
-            generateAIArtUseCase.GetArtById()(artId)?.let { _art.value = it }
+            _isLoading.value = true
+            _error.value = null
+
+            try {
+                val art = generateAIArtUseCase.getArtById(artId)
+                if (art != null) {
+                    _art.value = art
+                } else {
+                    _error.value = "Art not found"
+                }
+            } catch (e: Exception) {
+                _error.value = "Error: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
+
 
     fun saveArtToGallery() {
         val currentArt = _art.value ?: run {
@@ -97,27 +118,32 @@ class ArtViewModel @Inject constructor(
                         put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
                     }
 
-                    val resolver = android.content.ContextWrapper().applicationContext.contentResolver
-                    val uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+                    // Используем appContext.contentResolver вместо создания нового ContextWrapper
+                    val uri = appContext.contentResolver.insert(
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        contentValues
+                    )
 
                     uri?.let {
-                        resolver.openOutputStream(it)?.use { os ->
+                        appContext.contentResolver.openOutputStream(it)?.use { os ->
                             bitmap.compress(Bitmap.CompressFormat.JPEG, 95, os)
                         }
                     }
                     uri
                 } else {
                     // Для старых версий Android
-                    val imagesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+                    val imagesDir = Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_PICTURES
+                    )
                     val imageFile = File(imagesDir, filename)
 
                     FileOutputStream(imageFile).use { out ->
                         bitmap.compress(Bitmap.CompressFormat.JPEG, 95, out)
                     }
 
-                    // Обновляем галерею
+                    // Используем appContext.contentResolver
                     MediaStore.Images.Media.insertImage(
-                        android.content.ContextWrapper().applicationContext.contentResolver,
+                        appContext.contentResolver,
                         imageFile.absolutePath,
                         filename,
                         "DrawAI Art"
@@ -125,6 +151,7 @@ class ArtViewModel @Inject constructor(
                     Uri.fromFile(imageFile)
                 }
             } catch (e: Exception) {
+                _toastMessage.postValue("Save failed: ${e.localizedMessage}")
                 null
             }
         }

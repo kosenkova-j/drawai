@@ -21,7 +21,7 @@ class GenerationViewModel @Inject constructor(
     val isLoading = MutableLiveData(false)
     val generatedArt = MutableLiveData<Art?>(null)
     val errorMessage = MutableLiveData<String?>(null)
-    val navigateToGallery = MutableLiveData(false)
+    val navigateToGallery = MutableLiveData<Event<Boolean>>()  // Используем Event для навигации
 
     fun generateArt() {
         val prompt = promptText.value?.trim()
@@ -33,28 +33,45 @@ class GenerationViewModel @Inject constructor(
         viewModelScope.launch {
             isLoading.value = true
             errorMessage.value = null
+            generatedArt.value = null
 
-            when (val result = GenerateAIArtUseCase.GenerateArt(
-                repository,
-                generateAIArtUseCase.yandexArtApi
-            ).invoke(prompt)) {
-                is Result.Success -> {
-                    generatedArt.value = result.getOrNull()
-                }
-                is Result.Failure -> {
-                    errorMessage.value = result.exceptionOrNull()?.message ?: "Generation failed"
-                }
+            try {
+                val art = generateAIArtUseCase.generateArt(prompt)
+                generatedArt.value = art
+            } catch (e: Exception) {
+                errorMessage.value = e.message ?: "Art generation failed"
+            } finally {
+                isLoading.value = false
             }
-            isLoading.value = false
         }
     }
 
     fun saveArt() {
         generatedArt.value?.let { art ->
             viewModelScope.launch {
-                repository.saveArt(art)
-                navigateToGallery.value = true
+                try {
+                    repository.saveArt(art)
+                    navigateToGallery.value = Event(true)  // Используем Event
+                } catch (e: Exception) {
+                    errorMessage.value = "Failed to save art: ${e.message}"
+                }
             }
+        } ?: run {
+            errorMessage.value = "No art to save"
+        }
+    }
+}
+
+// Класс-обертка для событий (предотвращает многократные срабатывания)
+class Event<T>(private val content: T) {
+    private var hasBeenHandled = false
+
+    fun getContentIfNotHandled(): T? {
+        return if (hasBeenHandled) {
+            null
+        } else {
+            hasBeenHandled = true
+            content
         }
     }
 }
